@@ -10,6 +10,7 @@ workflows:
         XCODE_PROJECT: "SaltPlayeriOS.xcodeproj"
         XCODE_SCHEME: "SaltPlayeriOS"
         TEAM_ID: $TEAM_ID
+        APP_ID: $APP_ID
       xcode: latest
     scripts:
       - name: Install xcodegen
@@ -47,6 +48,10 @@ workflows:
       - name: Generate Xcode project
         script: |
           xcodegen generate
+      - name: Disable code signing for simulator
+        script: |
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' "$XCODE_PROJECT/project.pbxproj"
+          sed -i '' 's/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "-";/g' "$XCODE_PROJECT/project.pbxproj"
       - name: Build for simulator
         script: |
           xcode-project build \
