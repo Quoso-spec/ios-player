@@ -34,7 +34,6 @@ targets:
       - sdk: MediaPlayer.framework
       - sdk: UIKit.framework
       - sdk: UniformTypeIdentifiers.framework
-      - sdk: sqlite3.framework
 
   SaltMusicTests:
     type: bundle.unit-test
