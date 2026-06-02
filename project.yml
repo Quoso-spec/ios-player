@@ -1,6 +1,8 @@
 name: SaltMusic
 options:
   bundleIdPrefix: com.moriafly.saltplayer
+  xcodeVersion: "15.4"
+  createIntermediateGroups: true
 targets:
   SaltMusic:
     type: application
