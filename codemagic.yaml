@@ -7,12 +7,14 @@ workflows:
     max_build_duration: 60
     environment:
       vars:
-        XCODE_WORKSPACE: "SaltPlayeriOS.xcodeproj"
+        XCODE_PROJECT: "SaltPlayeriOS.xcodeproj"
         XCODE_SCHEME: "SaltPlayeriOS"
         TEAM_ID: $TEAM_ID
       xcode: latest
-      cocoapods: default
     scripts:
+      - name: Generate Xcode project
+        script: |
+          xcodegen generate
       - name: Set up code signing
         script: |
           keychain initialize
@@ -21,7 +23,7 @@ workflows:
       - name: Build iOS project
         script: |
           xcode-project build-ipa \
-            --workspace "$XCODE_WORKSPACE" \
+            --workspace "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
@@ -32,15 +34,17 @@ workflows:
     max_build_duration: 30
     environment:
       vars:
-        XCODE_WORKSPACE: "SaltPlayeriOS.xcodeproj"
+        XCODE_PROJECT: "SaltPlayeriOS.xcodeproj"
         XCODE_SCHEME: "SaltPlayeriOS"
       xcode: latest
-      cocoapods: default
     scripts:
+      - name: Generate Xcode project
+        script: |
+          xcodegen generate
       - name: Build for simulator
         script: |
           xcode-project build \
-            --workspace "$XCODE_WORKSPACE" \
+            --workspace "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME" \
             --configuration Debug \
             --destination 'platform=iOS Simulator,name=iPhone 16 Pro'
