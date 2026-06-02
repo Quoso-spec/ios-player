@@ -1,45 +1,63 @@
-name: SaltMusic
+name: SaltPlayeriOS
 options:
-  bundleIdPrefix: com.moriafly.saltplayer
-  xcodeVersion: "15.4"
+  bundleIdPrefix: com.saltplayer
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+  generateEmptyDirectories: true
+  groupSortPosition: top
   createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    ENABLE_USER_SCRIPT_SANDBOXING: "NO"
+
+packages:
+  ID3TagEditor:
+    url: https://github.com/chicio/ID3TagEditor
+    from: "4.5.0"
+  SQLite:
+    url: https://github.com/stephencelis/SQLite.swift
+    from: "0.15.0"
+  SnapKit:
+    url: https://github.com/SnapKit/SnapKit
+    from: "5.7.0"
+
 targets:
-  SaltMusic:
+  SaltPlayeriOS:
     type: application
     platform: iOS
-    deploymentTarget: "17.0"
     sources:
       - path: App
+      - path: Components
       - path: Core
-      - path: Services
+      - path: Design
+      - path: Extensions
       - path: Features
+      - path: Models
       - path: Resources
+        excludes:
+          - "**/.DS_Store"
     settings:
       base:
-        INFOPLIST_FILE: App/Info.plist
-        PRODUCT_BUNDLE_IDENTIFIER: com.moriafly.saltplayer.ios.dev
-        DEVELOPMENT_TEAM: "" # 如果有苹果开发者Team ID可以填在这里，没有不填也行
-        CODE_SIGN_STYLE: Automatic
-        # iOS 17+ 背景播放、系统控制、SQLite链接配置
-        OTHER_LDFLAGS: -lsqlite3
-      configs:
-        Debug:
-          CODE_SIGN_IDENTITY: "Apple Development"
-        Release:
-          CODE_SIGN_IDENTITY: "Apple Distribution"
+        INFOPLIST_FILE: Resources/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.saltplayer.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: "YES"
+        ENABLE_PREVIEWS: "YES"
     dependencies:
-      - sdk: SwiftUI.framework
-      - sdk: Foundation.framework
-      - sdk: AVFoundation.framework
-      - sdk: MediaPlayer.framework
-      - sdk: UIKit.framework
-      - sdk: UniformTypeIdentifiers.framework
-
-  SaltMusicTests:
-    type: bundle.unit-test
-    platform: iOS
-    deploymentTarget: "17.0"
-    sources:
-      - path: Tests/SaltMusicTests
-    dependencies:
-      - target: SaltMusic
+      - package: ID3TagEditor
+      - package: SQLite
+      - package: SnapKit
+    entitlements:
+      path: Resources/SaltPlayeriOS.entitlements
+      properties:
+        com.apple.security.app-sandbox: false
+        com.apple.security.files.user-selected.read-write: true

@@ -1,0 +1,114 @@
+/*
+  Localizable.strings
+  SaltPlayeriOS
+
+  English strings for localization
+*/
+
+/* General */
+"app_name" = "Salt Player";
+"cancel" = "Cancel";
+"done" = "Done";
+"save" = "Save";
+"delete" = "Delete";
+"edit" = "Edit";
+"play" = "Play";
+"pause" = "Pause";
+"next" = "Next";
+"previous" = "Previous";
+"shuffle" = "Shuffle";
+"repeat" = "Repeat";
+"repeat_one" = "Repeat One";
+"repeat_all" = "Repeat All";
+"repeat_off" = "Repeat Off";
+
+/* Home */
+"good_morning" = "Good Morning";
+"good_afternoon" = "Good Afternoon";
+"good_evening" = "Good Evening";
+"recently_played" = "Recently Played";
+"all_songs" = "All Songs";
+"albums" = "Albums";
+"artists" = "Artists";
+"favorites" = "Favorites";
+"no_music_yet" = "No Music Yet";
+"import_music" = "Import Music";
+"import_music_description" = "Import music from your device to get started";
+
+/* Library */
+"library" = "Library";
+"search_songs" = "Search songs, albums, artists";
+"songs_count" = "%d songs";
+"albums_count" = "%d albums";
+"artists_count" = "%d artists";
+"sort_by" = "Sort By";
+"sort_title" = "Title";
+"sort_artist" = "Artist";
+"sort_album" = "Album";
+"sort_date_added" = "Date Added";
+"sort_duration" = "Duration";
+
+/* Player */
+"now_playing" = "Now Playing";
+"queue" = "Queue";
+"queue_empty" = "Queue is empty";
+"add_to_queue" = "Add to Queue";
+"remove_from_queue" = "Remove from Queue";
+"clear_queue" = "Clear Queue";
+"lyrics" = "Lyrics";
+"no_lyrics" = "No lyrics available";
+"no_lyrics_hint" = "Place an .lrc file next to the audio file";
+
+/* Playlists */
+"playlists" = "Playlists";
+"create_playlist" = "Create Playlist";
+"new_playlist" = "New Playlist";
+"playlist_name" = "Playlist Name";
+"playlist_description" = "Description (Optional)";
+"delete_playlist" = "Delete Playlist";
+"delete_playlist_confirm" = "Are you sure you want to delete this playlist?";
+"no_playlists" = "No playlists yet";
+"create_first_playlist" = "Create your first playlist";
+
+/* Equalizer */
+"equalizer" = "Equalizer";
+"eq_preset_flat" = "Flat";
+"eq_preset_pop" = "Pop";
+"eq_preset_rock" = "Rock";
+"eq_preset_jazz" = "Jazz";
+"eq_preset_classical" = "Classical";
+"eq_preset_dance" = "Dance";
+"eq_preset_hiphop" = "Hip-Hop";
+"eq_preset_electronic" = "Electronic";
+"eq_preset_vocal" = "Vocal";
+"eq_preset_bass" = "Bass";
+"eq_preset_treble" = "Treble";
+"eq_preset_custom" = "Custom";
+"bass" = "Bass";
+"treble" = "Treble";
+"reset_to_defaults" = "Reset to Defaults";
+
+/* Settings */
+"settings" = "Settings";
+"audio" = "Audio";
+"playback" = "Playback";
+"crossfade" = "Crossfade";
+"crossfade_duration" = "Duration";
+"gapless_playback" = "Gapless Playback";
+"library_settings" = "Library";
+"storage_used" = "Storage Used";
+"scan_on_launch" = "Scan on Launch";
+"about" = "About";
+"version" = "Version";
+"reset_settings" = "Reset to Defaults";
+
+/* Import */
+"import" = "Import";
+"select_folder" = "Select Folder";
+"supported_formats" = "Supported formats:";
+
+/* Errors */
+"error_loading" = "Error loading";
+"error_playback" = "Playback error";
+"file_not_found" = "File not found";
+"unsupported_format" = "Unsupported format";

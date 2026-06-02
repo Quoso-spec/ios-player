@@ -1,158 +1,146 @@
-import Foundation
 import SwiftUI
 
 struct LibraryView: View {
-    @EnvironmentObject private var environment: AppEnvironment
     @StateObject private var viewModel = LibraryViewModel()
+    @EnvironmentObject var playerViewModel: PlayerViewModel
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                libraryHeader
-                if let message = viewModel.message {
-                    Text(message)
-                        .font(.footnote)
-                        .foregroundStyle(environment.theme.palette.secondaryText)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal)
-                        .padding(.bottom, 8)
-                }
-                List {
-                    ForEach(viewModel.tracks) { track in
-                        TrackRow(track: track)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                viewModel.play(track: track)
-                            }
-                            .swipeActions(edge: .trailing) {
-                                Button {
-                                    viewModel.toggleFavorite(track: track)
-                                } label: {
-                                    Label(track.isFavorite ? "取消收藏" : "收藏", systemImage: "heart")
-                                }
-                                .tint(environment.theme.palette.accent)
-                            }
-                    }
-                }
-                .listStyle(.plain)
-                .overlay {
-                    if viewModel.tracks.isEmpty {
-                        ContentUnavailableView("暂无歌曲", systemImage: "music.note", description: Text("从文件或文件夹导入本地音乐"))
-                    }
+                segmentedControl
+
+                if viewModel.isScanning {
+                    scanningIndicator
+                } else {
+                    libraryContent
                 }
             }
-            .navigationTitle("椒盐音乐")
-            .searchable(text: $viewModel.searchText, prompt: "搜索歌曲、艺人、专辑")
-            .onChange(of: viewModel.searchText) {
-                Task {
-                    await viewModel.search()
-                }
-            }
+            .background(SaltColors.background)
+            .navigationTitle("Library")
+            .searchable(text: $viewModel.searchQuery, prompt: "Search songs, albums, artists")
             .toolbar {
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.importFiles()
+                ToolbarItem(placement: .topBarTrailing) {
+                    Menu {
+                        ForEach(SortOrder.allCases, id: \.self) { order in
+                            Button(action: { viewModel.setSortOrder(order) }) {
+                                Label(order.rawValue, systemImage: order.icon)
+                            }
+                        }
                     } label: {
-                        Image(systemName: "doc.badge.plus")
+                        Image(systemName: "arrow.up.arrow.down")
+                            .foregroundColor(SaltColors.accent)
                     }
-                    .help("导入文件")
+                }
 
-                    Button {
-                        viewModel.importFolder()
-                    } label: {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { viewModel.showImportSheet = true }) {
                         Image(systemName: "folder.badge.plus")
+                            .foregroundColor(SaltColors.accent)
                     }
-                    .help("导入文件夹")
-
-                    Button {
-                        viewModel.rescan()
-                    } label: {
-                        Image(systemName: "arrow.triangle.2.circlepath")
-                    }
-                    .help("重新扫描")
                 }
             }
-            .task {
-                viewModel.bind(environment: environment)
-                await viewModel.refresh()
+            .sheet(isPresented: $viewModel.showImportSheet) {
+                DocumentPickerView { url in
+                    viewModel.scanDirectory(url)
+                }
             }
         }
     }
 
-    private var libraryHeader: some View {
-        HStack(spacing: 14) {
-            statistic("歌曲", value: viewModel.statistics.trackCount)
-            statistic("收藏", value: viewModel.statistics.favoriteCount)
-            statistic("列表", value: viewModel.statistics.playlistCount)
+    @ViewBuilder
+    private var segmentedControl: some View {
+        Picker("View", selection: $viewModel.selectedGrouping) {
+            ForEach(LibraryViewModel.LibraryGrouping.allCases, id: \.self) { grouping in
+                Text(grouping.rawValue).tag(grouping)
+            }
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal, SaltTheme.spacingL)
+        .padding(.vertical, SaltTheme.spacingS)
+    }
+
+    @ViewBuilder
+    private var scanningIndicator: some View {
+        VStack(spacing: SaltTheme.spacingL) {
             Spacer()
-            if viewModel.isImporting {
-                ProgressView()
-            }
+            ProgressView(value: viewModel.scanProgress)
+                .tint(SaltColors.accent)
+                .padding(.horizontal, SaltTheme.spacingXXL)
+
+            Text("Scanning... \(Int(viewModel.scanProgress * 100))%")
+                .font(SaltTypography.subheadline)
+                .foregroundColor(SaltColors.textSecondary)
+
+            Spacer()
         }
-        .padding()
-        .background(environment.theme.palette.surface)
     }
 
-    private func statistic(_ title: String, value: Int) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("\(value)")
-                .font(.headline)
-                .foregroundStyle(environment.theme.palette.primaryText)
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(environment.theme.palette.secondaryText)
+    @ViewBuilder
+    private var libraryContent: some View {
+        Group {
+            switch viewModel.selectedGrouping {
+            case .songs:
+                songsList
+            case .albums:
+                albumsGrid
+            case .artists:
+                artistsList
+            }
         }
-        .frame(minWidth: 52, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private var songsList: some View {
+        List {
+            if viewModel.isSearching {
+                ForEach(viewModel.searchResults) { song in
+                    SongRowView(song: song, onTap: {
+                        playerViewModel.play(song: song, in: viewModel.displayedSongs)
+                    })
+                    .listRowBackground(SaltColors.background)
+                }
+            } else {
+                ForEach(viewModel.displayedSongs) { song in
+                    SongRowView(song: song, onTap: {
+                        let index = viewModel.displayedSongs.firstIndex(where: { $0.id == song.id }) ?? 0
+                        playerViewModel.play(songs: viewModel.displayedSongs, startingAt: index)
+                    })
+                    .listRowBackground(SaltColors.background)
+                }
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+    }
+
+    @ViewBuilder
+    private var albumsGrid: some View {
+        ScrollView {
+            AlbumGridView(albums: viewModel.albums) { album in
+                // Navigate to album detail
+            }
+            .padding(.horizontal, SaltTheme.spacingL)
+            .padding(.bottom, SaltTheme.miniPlayerHeight + 20)
+        }
+    }
+
+    @ViewBuilder
+    private var artistsList: some View {
+        List {
+            ForEach(viewModel.artists) { artist in
+                ArtistRowView(artist: artist) {
+                    // Navigate to artist detail
+                }
+                .listRowBackground(SaltColors.background)
+            }
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
 }
 
-private struct TrackRow: View {
-    let track: Track
-
-    var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(.quaternary)
-                Image(systemName: "music.note")
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-            }
-            .frame(width: 46, height: 46)
-
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(track.displayTitle)
-                        .font(.body)
-                        .lineLimit(1)
-                    if track.isMissing {
-                        Image(systemName: "exclamationmark.triangle")
-                            .foregroundStyle(.orange)
-                    }
-                    if track.isFavorite {
-                        Image(systemName: "heart.fill")
-                            .foregroundStyle(.pink)
-                    }
-                }
-                Text("\(track.displayArtist) · \(track.displayAlbum)")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(1)
-            }
-
-            Spacer()
-
-            Text(Self.durationFormatter.string(from: track.duration) ?? "--:--")
-                .font(.caption.monospacedDigit())
-                .foregroundStyle(.secondary)
-        }
-        .padding(.vertical, 4)
-    }
-
-    private static let durationFormatter: DateComponentsFormatter = {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.minute, .second]
-        formatter.zeroFormattingBehavior = [.pad]
-        return formatter
-    }()
+#Preview {
+    LibraryView()
+        .environmentObject(PlayerViewModel())
+        .environmentObject(LibraryViewModel())
 }

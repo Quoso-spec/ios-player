@@ -1,98 +1,185 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject private var environment: AppEnvironment
-
-    var body: some View {
-        SettingsContent(environment: environment, theme: environment.theme)
-    }
-}
-
-private struct SettingsContent: View {
-    @ObservedObject var environment: AppEnvironment
-    @ObservedObject var theme: SaltTheme
-    @State private var mediaLibraryStatus: SystemMediaLibraryStatus = .notDetermined
+    @StateObject private var viewModel = SettingsViewModel()
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("外观") {
-                    Picker("主题", selection: $theme.variant) {
-                        ForEach(SaltThemeVariant.allCases) { variant in
-                            Text(label(for: variant)).tag(variant)
-                        }
-                    }
-
-                    Picker("播放器背景", selection: $theme.playerBackgroundStyle) {
-                        Text("流动渐变").tag(PlayerBackgroundStyle.fluidGradient)
-                        Text("封面模糊").tag(PlayerBackgroundStyle.blurredArtwork)
-                        Text("安静材质").tag(PlayerBackgroundStyle.calmMaterial)
-                    }
-                }
-
-                Section("媒体库") {
-                    LabeledContent("数据库", value: environment.libraryStore.databaseURL.lastPathComponent)
-                    LabeledContent("系统媒体库", value: label(for: mediaLibraryStatus))
-                    Button {
-                        Task {
-                            mediaLibraryStatus = await environment.systemMediaLibraryProvider.requestAuthorization()
-                        }
-                    } label: {
-                        Label("授权系统媒体库", systemImage: "music.note.house")
-                    }
-                }
-
-                Section("分发") {
-                    LabeledContent("Bundle ID", value: "com.moriafly.saltplayer.ios.dev")
-                    LabeledContent("最低系统", value: "iOS 17")
-                    LabeledContent("签名", value: "企业 / 自签占位")
-                }
-
-                Section("维护") {
-                    Button {
-                        Task {
-                            _ = await environment.diagnosticsService.makeSnapshot()
-                        }
-                    } label: {
-                        Label("生成诊断快照", systemImage: "stethoscope")
-                    }
-                    Button {
-                    } label: {
-                        Label("备份与恢复占位", systemImage: "externaldrive")
-                    }
-                    .disabled(true)
-                }
+            List {
+                audioSection
+                playbackSection
+                librarySection
+                aboutSection
             }
-            .navigationTitle("设置")
-            .task {
-                mediaLibraryStatus = environment.systemMediaLibraryProvider.authorizationStatus()
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(SaltColors.background)
+            .navigationTitle("Settings")
+        }
+    }
+
+    @ViewBuilder
+    private var audioSection: some View {
+        Section {
+            NavigationLink(destination: EqualizerView()) {
+                SettingsRow(
+                    icon: "slider.horizontal.3",
+                    title: "Equalizer",
+                    iconColor: SaltColors.accent
+                )
             }
+        } header: {
+            Text("Audio")
         }
+        .listRowBackground(SaltColors.surface)
     }
 
-    private func label(for variant: SaltThemeVariant) -> String {
-        switch variant {
-        case .dusk:
-            return "椒盐暮色"
-        case .light:
-            return "清亮"
-        case .midnight:
-            return "午夜"
-        case .graphite:
-            return "石墨"
+    @ViewBuilder
+    private var playbackSection: some View {
+        Section {
+            Toggle(isOn: $viewModel.crossfadeEnabled) {
+                SettingsRow(
+                    icon: "arrow.left.arrow.right",
+                    title: "Crossfade",
+                    iconColor: .orange
+                )
+            }
+            .tint(SaltColors.accent)
+
+            if viewModel.crossfadeEnabled {
+                VStack(alignment: .leading, spacing: SaltTheme.spacingS) {
+                    HStack {
+                        Text("Duration")
+                            .font(SaltTypography.subheadline)
+                        Spacer()
+                        Text("\(Int(viewModel.crossfadeDuration))s")
+                            .font(SaltTypography.subheadline)
+                            .foregroundColor(SaltColors.textSecondary)
+                    }
+
+                    Slider(value: $viewModel.crossfadeDuration, in: 0.5...12, step: 0.5)
+                        .tint(SaltColors.accent)
+                }
+                .padding(.vertical, SaltTheme.spacingXS)
+            }
+
+            Toggle(isOn: $viewModel.gaplessPlayback) {
+                SettingsRow(
+                    icon: "waveform",
+                    title: "Gapless Playback",
+                    iconColor: .green
+                )
+            }
+            .tint(SaltColors.accent)
+        } header: {
+            Text("Playback")
         }
+        .listRowBackground(SaltColors.surface)
     }
 
-    private func label(for status: SystemMediaLibraryStatus) -> String {
-        switch status {
-        case .unsupported:
-            return "未接入"
-        case .notDetermined:
-            return "未决定"
-        case .denied:
-            return "未授权"
-        case .authorized:
-            return "已授权"
+    @ViewBuilder
+    private var librarySection: some View {
+        Section {
+            HStack {
+                SettingsRow(
+                    icon: "music.note",
+                    title: "Songs",
+                    iconColor: .blue
+                )
+                Spacer()
+                Text("\(viewModel.songCount)")
+                    .font(SaltTypography.subheadline)
+                    .foregroundColor(SaltColors.textSecondary)
+            }
+
+            HStack {
+                SettingsRow(
+                    icon: "square.stack",
+                    title: "Albums",
+                    iconColor: .purple
+                )
+                Spacer()
+                Text("\(viewModel.albumCount)")
+                    .font(SaltTypography.subheadline)
+                    .foregroundColor(SaltColors.textSecondary)
+            }
+
+            HStack {
+                SettingsRow(
+                    icon: "externaldrive",
+                    title: "Storage Used",
+                    iconColor: .gray
+                )
+                Spacer()
+                Text(viewModel.storageUsed)
+                    .font(SaltTypography.subheadline)
+                    .foregroundColor(SaltColors.textSecondary)
+            }
+
+            Toggle(isOn: $viewModel.autoScanOnLaunch) {
+                SettingsRow(
+                    icon: "arrow.clockwise",
+                    title: "Scan on Launch",
+                    iconColor: .cyan
+                )
+            }
+            .tint(SaltColors.accent)
+        } header: {
+            Text("Library")
+        }
+        .listRowBackground(SaltColors.surface)
+    }
+
+    @ViewBuilder
+    private var aboutSection: some View {
+        Section {
+            HStack {
+                SettingsRow(
+                    icon: "info.circle",
+                    title: "Version",
+                    iconColor: .gray
+                )
+                Spacer()
+                Text("\(viewModel.appVersion) (\(viewModel.buildNumber))")
+                    .font(SaltTypography.subheadline)
+                    .foregroundColor(SaltColors.textSecondary)
+            }
+
+            Button(action: { viewModel.resetToDefaults() }) {
+                SettingsRow(
+                    icon: "arrow.counterclockwise",
+                    title: "Reset to Defaults",
+                    iconColor: .red
+                )
+            }
+        } header: {
+            Text("About")
+        }
+        .listRowBackground(SaltColors.surface)
+    }
+}
+
+struct SettingsRow: View {
+    let icon: String
+    let title: String
+    let iconColor: Color
+
+    var body: some View {
+        HStack(spacing: SaltTheme.spacingM) {
+            Image(systemName: icon)
+                .font(.system(size: 16))
+                .foregroundColor(iconColor)
+                .frame(width: 28, height: 28)
+                .background(iconColor.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+            Text(title)
+                .font(SaltTypography.body)
+                .foregroundColor(SaltColors.textPrimary)
         }
     }
+}
+
+#Preview {
+    SettingsView()
 }
