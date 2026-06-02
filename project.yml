@@ -1,0 +1,44 @@
+name: SaltMusic
+options:
+  bundleIdPrefix: com.moriafly.saltplayer
+targets:
+  SaltMusic:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: App
+      - path: Core
+      - path: Services
+      - path: Features
+      - path: Resources
+    settings:
+      base:
+        INFOPLIST_FILE: App/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.moriafly.saltplayer.ios.dev
+        DEVELOPMENT_TEAM: "" # 如果有苹果开发者Team ID可以填在这里，没有不填也行
+        CODE_SIGN_STYLE: Automatic
+        # iOS 17+ 背景播放、系统控制、SQLite链接配置
+        OTHER_LDFLAGS: -lsqlite3
+      configs:
+        Debug:
+          CODE_SIGN_IDENTITY: "Apple Development"
+        Release:
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+    dependencies:
+      - sdk: SwiftUI.framework
+      - sdk: Foundation.framework
+      - sdk: AVFoundation.framework
+      - sdk: MediaPlayer.framework
+      - sdk: UIKit.framework
+      - sdk: UniformTypeIdentifiers.framework
+      - sdk: sqlite3.framework
+
+  SaltMusicTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: Tests/SaltMusicTests
+    dependencies:
+      - target: SaltMusic

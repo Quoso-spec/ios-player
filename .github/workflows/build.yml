@@ -1,0 +1,67 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # 允许手动触发打包
+
+jobs:
+  build:
+    name: Build & Test iOS App
+    runs-on: macos-14 # 使用 macOS 14 运行 Xcode 15+
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Select Xcode Version
+        run: sudo xcode-select -s /Applications/Xcode_15.4.app
+
+      - name: Run Unit Tests
+        run: |
+          xcodebuild test \
+            -project SaltMusic.xcodeproj \
+            -scheme SaltMusicTests \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.5' \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Build for Generic iOS Device (No Signing)
+        run: |
+          xcodebuild archive \
+            -project SaltMusic.xcodeproj \
+            -scheme SaltMusic \
+            -configuration Release \
+            -archivePath build/SaltMusic.xcarchive \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            PRODUCT_BUNDLE_IDENTIFIER=com.moriafly.saltplayer.ios.dev
+
+      - name: Create Unsigned IPA Package
+        run: |
+          mkdir -p build/Payload
+          cp -r build/SaltMusic.xcarchive/Products/Applications/SaltMusic.app build/Payload/
+          cd build
+          zip -r SaltMusic_Unsigned.ipa Payload
+          cd ..
+
+      - name: Upload Unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SaltMusic-Unsigned-IPA
+          path: build/SaltMusic_Unsigned.ipa
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test-Results
+          path: ~/Library/Developer/Xcode/DerivedData
