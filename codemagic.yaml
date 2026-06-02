@@ -26,7 +26,7 @@ workflows:
       - name: Build iOS project
         script: |
           xcode-project build-ipa \
-            --workspace "$XCODE_PROJECT" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
@@ -50,7 +50,7 @@ workflows:
       - name: Build for simulator
         script: |
           xcode-project build \
-            --workspace "$XCODE_PROJECT" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME" \
             --configuration Debug \
             --destination 'platform=iOS Simulator,name=iPhone 16 Pro'
