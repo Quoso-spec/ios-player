@@ -12,6 +12,9 @@ workflows:
         TEAM_ID: $TEAM_ID
       xcode: latest
     scripts:
+      - name: Install xcodegen
+        script: |
+          brew install xcodegen
       - name: Generate Xcode project
         script: |
           xcodegen generate
@@ -38,6 +41,9 @@ workflows:
         XCODE_SCHEME: "SaltPlayeriOS"
       xcode: latest
     scripts:
+      - name: Install xcodegen
+        script: |
+          brew install xcodegen
       - name: Generate Xcode project
         script: |
           xcodegen generate
