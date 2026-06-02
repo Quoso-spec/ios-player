@@ -28,7 +28,10 @@ public final class DefaultBookmarkResolver: BookmarkResolving {
 
     public func bookmark(for url: URL) throws -> Data {
         try url.bookmarkData(
-            options: [.minimalBookmark, .withSecurityScope],
+            options: [.minimalBookmark#if os(macOS)
+                , .withSecurityScope
+#endif
+            ],
             includingResourceValuesForKeys: nil,
             relativeTo: nil
         )
@@ -40,12 +43,21 @@ public final class DefaultBookmarkResolver: BookmarkResolving {
         }
 
         var isStale = false
+        #if os(iOS)
+        let url = try URL(
+            resolvingBookmarkData: data,
+            options: [],
+            relativeTo: nil,
+            bookmarkDataIsStale: &isStale
+        )
+        #else
         let url = try URL(
             resolvingBookmarkData: data,
             options: [.withSecurityScope],
             relativeTo: nil,
             bookmarkDataIsStale: &isStale
         )
+        #endif
         let didStart = url.startAccessingSecurityScopedResource()
         return ResolvedBookmark(url: url, isStale: isStale, didStartAccessingSecurityScopedResource: didStart)
     }
