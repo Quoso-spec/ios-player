@@ -25,17 +25,6 @@ jobs:
       - name: Generate Xcode Project
         run: xcodegen generate
 
-      - name: Install iOS Simulator Platform
-        run: |
-          xcrun simctl list devices available | head -20
-          xcrun simctl boot idle
-          xcrun simctl list runtimes
-
-      - name: List available simulators
-        run: |
-          echo "=== Available simulators ==="
-          xcrun simctl list devices available
-
       - name: Build for Generic iOS Device (No Signing)
         run: |
           xcodebuild archive \
