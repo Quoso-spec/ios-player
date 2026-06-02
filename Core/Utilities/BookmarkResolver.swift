@@ -23,15 +23,20 @@ public enum BookmarkResolverError: Error {
     case emptyBookmark
 }
 
+#if os(iOS)
+private let bookmarkOptions: NSURL.BookmarkCreationOptions = [.minimalBookmark]
+private let resolutionOptions: NSURL.BookmarkResolutionOptions = []
+#else
+private let bookmarkOptions: NSURL.BookmarkCreationOptions = [.minimalBookmark, .withSecurityScope]
+private let resolutionOptions: NSURL.BookmarkResolutionOptions = [.withSecurityScope]
+#endif
+
 public final class DefaultBookmarkResolver: BookmarkResolving {
     public init() {}
 
     public func bookmark(for url: URL) throws -> Data {
         try url.bookmarkData(
-            options: [.minimalBookmark#if os(macOS)
-                , .withSecurityScope
-#endif
-            ],
+            options: bookmarkOptions,
             includingResourceValuesForKeys: nil,
             relativeTo: nil
         )
@@ -43,21 +48,12 @@ public final class DefaultBookmarkResolver: BookmarkResolving {
         }
 
         var isStale = false
-        #if os(iOS)
         let url = try URL(
             resolvingBookmarkData: data,
-            options: [],
+            options: resolutionOptions,
             relativeTo: nil,
             bookmarkDataIsStale: &isStale
         )
-        #else
-        let url = try URL(
-            resolvingBookmarkData: data,
-            options: [.withSecurityScope],
-            relativeTo: nil,
-            bookmarkDataIsStale: &isStale
-        )
-        #endif
         let didStart = url.startAccessingSecurityScopedResource()
         return ResolvedBookmark(url: url, isStale: isStale, didStartAccessingSecurityScopedResource: didStart)
     }
@@ -72,4 +68,3 @@ public final class DefaultBookmarkResolver: BookmarkResolving {
         }
     }
 }
-
