@@ -32,7 +32,7 @@ jobs:
             -scheme SaltMusic \
             -configuration Release \
             -archivePath build/SaltMusic.xcarchive \
-            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
