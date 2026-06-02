@@ -54,8 +54,11 @@ workflows:
           sed -i '' 's/CODE_SIGN_IDENTITY = "";/CODE_SIGN_IDENTITY = "-";/g' "$XCODE_PROJECT/project.pbxproj"
       - name: Build for simulator
         script: |
-          xcode-project build \
-            --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME" \
-            --configuration Debug \
-            --destination 'platform=iOS Simulator,name=iPhone 16 Pro'
+          xcodebuild -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Debug \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            build
