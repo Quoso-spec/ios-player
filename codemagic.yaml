@@ -9,8 +9,7 @@ workflows:
       vars:
         XCODE_WORKSPACE: "SaltPlayeriOS.xcodeproj"
         XCODE_SCHEME: "SaltPlayeriOS"
-        TEAM_ID: $TEAM_ID  # Set in Codemagic UI
-      flutter: false
+        TEAM_ID: $TEAM_ID
       xcode: latest
       cocoapods: default
     scripts:
@@ -35,7 +34,6 @@ workflows:
       vars:
         XCODE_WORKSPACE: "SaltPlayeriOS.xcodeproj"
         XCODE_SCHEME: "SaltPlayeriOS"
-      flutter: false
       xcode: latest
       cocoapods: default
     scripts:
