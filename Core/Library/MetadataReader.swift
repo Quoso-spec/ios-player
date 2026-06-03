@@ -56,7 +56,7 @@ final class MetadataReader {
                     updatedSong.albumArtist = albumArtistFrame.content
                 }
                 if let yearFrame = (id3Tag.frames[.recordingYear] as? ID3FrameWithIntegerContent) {
-                    updatedSong.year = yearFrame.value
+                    updatedSong.year = yearFrame.value ?? 0
                 }
                 if let genreFrame = (id3Tag.frames[.genre] as? ID3FrameWithStringContent) {
                     updatedSong.genre = genreFrame.content
@@ -67,8 +67,8 @@ final class MetadataReader {
                 if let discFrame = (id3Tag.frames[.discPosition] as? ID3FramePartOfTotal) {
                     updatedSong.discNumber = discFrame.part
                 }
-                if let durationFrame = (id3Tag.frames[.recordingLength] as? ID3FrameWithIntegerContent) {
-                    updatedSong.duration = TimeInterval(durationFrame.value)
+                if let durationFrame = (id3Tag.frames[ID3FrameName.recordingLength] as? ID3FrameWithIntegerContent) {
+                    updatedSong.duration = TimeInterval(durationFrame.value ?? 0)
                 }
                 if let attachedPicture = (id3Tag.frames[.attachedPicture(.frontCover)] as? ID3FrameAttachedPicture) {
                     updatedSong.artworkData = attachedPicture.picture

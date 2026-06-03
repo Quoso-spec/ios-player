@@ -11,7 +11,7 @@ final class LrcParser {
             return parse(content: content)
         } catch {
             do {
-                let content = try String(contentsOf: url, encoding: .gbk)
+                let content = try String(contentsOf: url, encoding: .isoLatin1)
                 return parse(content: content)
             } catch {
                 print("Failed to read LRC file: \(error)")
@@ -48,11 +48,11 @@ final class LrcParser {
                 continue
             }
 
-            if let translation = parseTranslation(trimmed) {
+            if parseTranslation(trimmed) {
                 hasTranslation = true
             }
 
-            if let romanization = parseRomanization(trimmed) {
+            if parseRomanization(trimmed) {
                 hasRomanization = true
             }
 

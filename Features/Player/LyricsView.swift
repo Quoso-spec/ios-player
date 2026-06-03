@@ -71,7 +71,7 @@ struct LyricsDisplayView: View {
             .onAppear {
                 scrollProxy = proxy
             }
-            .onChange(of: lyricsEngine.currentLineIndex) { _, newIndex in
+            .onChange(of: lyricsEngine.currentLineIndex) { newIndex in
                 if let index = newIndex {
                     withAnimation(.easeInOut(duration: 0.3)) {
                         if let line = lyricsEngine.currentLyrics.lines[safe: index] {
