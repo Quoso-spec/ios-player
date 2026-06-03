@@ -100,11 +100,11 @@ final class SettingsStore: ObservableObject {
         libraryGroupBy = defaults.string(forKey: Keys.groupBy) ?? "song"
         autoScanOnLaunch = defaults.object(forKey: Keys.autoScan) == nil ? true : defaults.bool(forKey: Keys.autoScan)
 
+        authorizedFolderBookmarks = defaults.array(forKey: Keys.folderBookmarks) as? [Data] ?? []
+
         crossfadeEnabled = defaults.bool(forKey: Keys.crossfadeEnabled)
         crossfadeDuration = defaults.double(forKey: Keys.crossfadeDuration)
         if crossfadeDuration == 0 { crossfadeDuration = 3.0 }
-
-        authorizedFolderBookmarks = defaults.array(forKey: Keys.folderBookmarks) as? [Data] ?? []
     }
 
     func resetToDefaults() {
