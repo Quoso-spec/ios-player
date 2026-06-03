@@ -4,10 +4,11 @@
 workflows:
   ios-workflow:
     name: iOS Build
-    max_build_duration: 60
+    max_build_duration: 120
     environment:
       vars:
         XCODE_PROJECT: "SaltPlayeriOS.xcodeproj"
+        XCODE_WORKSPACE: "SaltPlayeriOS.xcworkspace"
         XCODE_SCHEME: "SaltPlayeriOS"
         TEAM_ID: $TEAM_ID
         APP_ID: $APP_ID
@@ -24,14 +25,22 @@ workflows:
           keychain initialize
           app-store-connect fetch-signing-files "com.saltplayer.app" --type IOS_APP_STORE --create
           xcode-project use-profiles
-      - name: Build iOS project
+      - name: Build iOS project and export IPA
         script: |
-          xcode-project build-ipa \
-            --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
+          xcodebuild -workspace "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -configuration Release \
+            -archivePath build/SaltPlayeriOS.xcarchive \
+            archive
+      - name: Export IPA from archive
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath build/SaltPlayeriOS.xcarchive \
+            -exportPath build/ipa \
+            -exportOptionsPlist codemagic-export-options.plist
     artifacts:
-      - build/ios/ipa/*.ipa
-      - build/ios/xcarchive/*.xcarchive
+      - build/ipa/*.ipa
+      - build/SaltPlayeriOS.xcarchive
 
   ios-snapshot-workflow:
     name: iOS Simulator Build (No Code Signing)
