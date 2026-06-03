@@ -62,7 +62,7 @@ final class PlaylistViewModel: ObservableObject {
         }
     }
 
-    var totalDuration(for playlist: Playlist) -> String {
+    func totalDuration(for playlist: Playlist) -> String {
         let songs = songs(for: playlist)
         let total = songs.reduce(0) { $0 + $1.duration }
         let hours = Int(total) / 3600
