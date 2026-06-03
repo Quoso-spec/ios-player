@@ -67,9 +67,6 @@ final class MetadataReader {
                 if let discFrame = (id3Tag.frames[.discPosition] as? ID3FramePartOfTotal) {
                     updatedSong.discNumber = discFrame.part
                 }
-                if let durationFrame = (id3Tag.frames[ID3FrameName.recordingLength] as? ID3FrameWithIntegerContent) {
-                    updatedSong.duration = TimeInterval(durationFrame.value ?? 0)
-                }
                 if let attachedPicture = (id3Tag.frames[.attachedPicture(.frontCover)] as? ID3FrameAttachedPicture) {
                     updatedSong.artworkData = attachedPicture.picture
                 } else if let attachedPicture = (id3Tag.frames[.attachedPicture(.other)] as? ID3FrameAttachedPicture) {
