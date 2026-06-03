@@ -23,7 +23,7 @@ workflows:
       - name: Set up code signing
         script: |
           keychain initialize
-          app-store-connect fetch-signing-files "com.saltplayer.app" --type IOS_APP_STORE --create
+          app-store-connect fetch-signing-files "com.saltplayer.app" --type IOS_APP_ADHOC --create
           xcode-project use-profiles
       - name: Build iOS project and export IPA
         script: |
@@ -34,12 +34,17 @@ workflows:
             archive
       - name: Export IPA from archive
         script: |
+          mkdir -p build/ipa
           xcodebuild -exportArchive \
             -archivePath build/SaltPlayeriOS.xcarchive \
             -exportPath build/ipa \
             -exportOptionsPlist codemagic-export-options.plist
+      - name: Verify exported artifacts
+        script: |
+          ls -lah build/ipa
     artifacts:
       - build/ipa/*.ipa
+      - build/ipa/*.plist
       - build/SaltPlayeriOS.xcarchive
 
   ios-snapshot-workflow:
