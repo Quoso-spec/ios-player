@@ -85,10 +85,6 @@ final class SettingsStore: ObservableObject {
     }
 
     private init() {
-        crossfadeEnabled = defaults.bool(forKey: Keys.crossfadeEnabled)
-        crossfadeDuration = defaults.double(forKey: Keys.crossfadeDuration)
-        if crossfadeDuration == 0 { crossfadeDuration = 3.0 }
-
         gaplessPlaybackEnabled = defaults.object(forKey: Keys.gaplessPlayback) == nil ? true : defaults.bool(forKey: Keys.gaplessPlayback)
         equalizerEnabled = defaults.object(forKey: Keys.equalizerEnabled) == nil ? false : defaults.bool(forKey: Keys.equalizerEnabled)
         selectedEQPreset = defaults.string(forKey: Keys.eqPreset) ?? "Flat"
@@ -102,8 +98,12 @@ final class SettingsStore: ObservableObject {
 
         librarySortOrder = defaults.string(forKey: Keys.sortOrder) ?? "title"
         libraryGroupBy = defaults.string(forKey: Keys.groupBy) ?? "song"
+        autoScanOnLaunch = defaults.object(forKey: Keys.autoScan) == nil ? true : defaults.bool(forKey: Keys.autoScan)
 
-        autoScanOnLaunch = defaults.bool(forKey: Keys.autoScan)
+        crossfadeEnabled = defaults.bool(forKey: Keys.crossfadeEnabled)
+        crossfadeDuration = defaults.double(forKey: Keys.crossfadeDuration)
+        if crossfadeDuration == 0 { crossfadeDuration = 3.0 }
+
         authorizedFolderBookmarks = defaults.array(forKey: Keys.folderBookmarks) as? [Data] ?? []
     }
 

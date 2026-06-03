@@ -117,7 +117,6 @@ struct QueueRowView: View {
                 Image(systemName: "waveform")
                     .font(.system(size: 14))
                     .foregroundColor(SaltColors.accent)
-                    .symbolEffect(.variableColor.iterative)
             }
 
             Text(song.formattedDuration)

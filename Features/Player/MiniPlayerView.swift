@@ -18,7 +18,7 @@ struct MiniPlayerView: View {
                         showPlayer = true
                     }
 
-                    songInfo
+                    songInfo(for: song)
 
                     Spacer()
 
@@ -49,7 +49,7 @@ struct MiniPlayerView: View {
     }
 
     @ViewBuilder
-    private var songInfo: some View {
+    private func songInfo(for song: Song) -> some View {
         VStack(alignment: .leading, spacing: SaltTheme.spacingXXS) {
             Text(song.title)
                 .font(SaltTypography.subheadline)
