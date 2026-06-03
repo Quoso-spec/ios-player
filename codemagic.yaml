@@ -10,6 +10,9 @@ workflows:
         XCODE_PROJECT: "SaltPlayeriOS.xcodeproj"
         XCODE_WORKSPACE: "SaltPlayeriOS.xcworkspace"
         XCODE_SCHEME: "SaltPlayeriOS"
+        IPA_DIR: "build/ipa"
+        IPA_NAME: "SaltPlayeriOS-${MARKETING_VERSION}-${CURRENT_PROJECT_VERSION}.ipa"
+        IPA_REPO_PATH: "Releases/${MARKETING_VERSION}/${CURRENT_PROJECT_VERSION}"
         TEAM_ID: $TEAM_ID
         APP_ID: $APP_ID
       xcode: latest
@@ -34,14 +37,28 @@ workflows:
             archive
       - name: Export IPA from archive
         script: |
-          mkdir -p build/ipa
+          mkdir -p "$IPA_DIR"
           xcodebuild -exportArchive \
             -archivePath build/SaltPlayeriOS.xcarchive \
-            -exportPath build/ipa \
+            -exportPath "$IPA_DIR" \
             -exportOptionsPlist codemagic-export-options.plist
+      - name: Rename IPA deterministically
+        script: |
+          mv "$IPA_DIR"/*.ipa "$IPA_DIR/$IPA_NAME"
       - name: Verify exported artifacts
         script: |
-          ls -lah build/ipa
+          ls -lah "$IPA_DIR"
+      - name: Commit IPA to repository
+        script: |
+          git config user.email "build@codemagic.io"
+          git config user.name "Codemagic"
+          mkdir -p "$IPA_REPO_PATH"
+          cp "$IPA_DIR/$IPA_NAME" "$IPA_REPO_PATH/$IPA_NAME"
+          git add "$IPA_REPO_PATH/$IPA_NAME"
+          git commit -m "chore: publish $IPA_NAME" || echo "No changes to commit"
+      - name: Push IPA to GitHub
+        script: |
+          git push origin HEAD:main
     artifacts:
       - build/ipa/*.ipa
       - build/ipa/*.plist
