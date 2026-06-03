@@ -120,12 +120,6 @@ struct LyricLineView: View {
 }
 
 extension Array {
-    static subscript<T>(array: [T], index: Int) -> T? {
-        return indices.contains(index) ? array[index] : nil
-    }
-}
-
-extension Array {
     subscript(safe index: Int) -> Element? {
         return indices.contains(index) ? self[index] : nil
     }
