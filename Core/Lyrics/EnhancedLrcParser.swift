@@ -46,7 +46,7 @@ final class EnhancedLrcParser {
                 continue
             }
 
-            if let metadata = parseMetadata(trimmed) {
+            if parseMetadata(trimmed) {
                 continue
             }
 

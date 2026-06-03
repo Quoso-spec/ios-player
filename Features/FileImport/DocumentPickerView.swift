@@ -33,7 +33,7 @@ struct DocumentPickerView: View {
                 }
 
                 Button(action: {
-                    let types: [UTType] = [.audio, .mp3, .mpeg4Audio, .flac, .aiff, .wav]
+                    let types: [UTType] = [.audio, .mp3, .mpeg4Audio, .aiff, .wav]
                     let picker = UIDocumentPickerViewController(forOpeningContentTypes: types, asCopy: false)
                     picker.delegate = DocumentPickerDelegate(onPick: { url in
                         pickedURL = url

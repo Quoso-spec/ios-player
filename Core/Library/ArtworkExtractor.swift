@@ -48,7 +48,7 @@ actor ArtworkExtractor {
 
         let formats = [AVMetadataFormat.id3Metadata, AVMetadataFormat.iTunesMetadata]
         for format in formats {
-            let formatMetadata = AVMetadataItem.metadataItems(from: asset.metadata, filteredByIdentifier: nil)
+            let formatMetadata = asset.metadata.filter { $0.commonKey == nil }
             for item in formatMetadata {
                 if item.key as? String == "APIC" || String(describing: item.key).contains("Picture") {
                     if let data = item.dataValue {
